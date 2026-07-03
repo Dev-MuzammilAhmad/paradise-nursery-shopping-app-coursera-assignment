@@ -1,232 +1,247 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addItem } from '../features/cart/CartSlice';
-import { Plus, Check, Info } from 'lucide-react';
+import CartItem from './CartItem';
+import { ShoppingCart, Leaf } from 'lucide-react';
 
-const plantsData = [
-  // Indoor Plants
+const plantsArray = [
   {
-    id: 1,
-    name: 'Monstera Deliciosa',
-    category: 'Indoor Plants',
-    price: 25,
-    image: 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=500&auto=format&fit=crop&q=80',
-    description: 'Iconic split leaves, perfect for bringing a tropical vibe to your space.'
+    category: "Air Purifying Plants",
+    plants: [
+      {
+        name: "Snake Plant",
+        image: "https://cdn.pixabay.com/photo/2021/01/22/06/04/snake-plant-5939187_1280.jpg",
+        description: "Produces oxygen at night, improving air quality.",
+        cost: "$15"
+      },
+      {
+        name: "Spider Plant",
+        image: "https://cdn.pixabay.com/photo/2018/07/11/06/47/chlorophytum-3530413_1280.jpg",
+        description: "Filters formaldehyde and xylene from the air.",
+        cost: "$12"
+      },
+      {
+        name: "Peace Lily",
+        image: "https://cdn.pixabay.com/photo/2019/06/12/14/14/peace-lilies-4269365_1280.jpg",
+        description: "Removes mold spores and purifies the air.",
+        cost: "$18"
+      },
+      {
+        name: "Boston Fern",
+        image: "https://cdn.pixabay.com/photo/2020/04/30/19/52/boston-fern-5114414_1280.jpg",
+        description: "Adds humidity to the air and removes toxins.",
+        cost: "$20"
+      },
+      {
+        name: "Rubber Plant",
+        image: "https://cdn.pixabay.com/photo/2020/02/15/11/49/flower-4850729_1280.jpg",
+        description: "Easy to care for and effective at removing toxins.",
+        cost: "$17"
+      },
+      {
+        name: "Aloe Vera",
+        image: "https://cdn.pixabay.com/photo/2018/04/02/07/42/leaf-3283175_1280.jpg",
+        description: "Purifies the air and has healing properties for skin.",
+        cost: "$14"
+      }
+    ]
   },
   {
-    id: 2,
-    name: 'Snake Plant',
-    category: 'Indoor Plants',
-    price: 15,
-    image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=500&auto=format&fit=crop&q=80',
-    description: 'Indestructible, purifies air, and thrives in low-light environments.'
+    category: "Aromatic Fragrant Plants",
+    plants: [
+      {
+        name: "Lavender",
+        image: "https://images.unsplash.com/photo-1611909023032-2d6b3134ecba?q=80&w=1074&auto=format&fit=crop",
+        description: "Calming scent, used in aromatherapy.",
+        cost: "$20"
+      },
+      {
+        name: "Jasmine",
+        image: "https://images.unsplash.com/photo-1592729645009-b96d1e63d14b?q=80&w=1170&auto=format&fit=crop",
+        description: "Exotic climber known for its sweet, intoxicating aroma.",
+        cost: "$18"
+      },
+      {
+        name: "Rosemary",
+        image: "https://images.unsplash.com/photo-1515514902486-12fc01353aea?q=80&w=1074&auto=format&fit=crop",
+        description: "Invigorating scent, used in cooking and aromatherapy.",
+        cost: "$15"
+      },
+      {
+        name: "Mint",
+        image: "https://images.unsplash.com/photo-1533618178125-d72b2c9b6348?q=80&w=1074&auto=format&fit=crop",
+        description: "Refreshing scent, versatile herb for culinary use.",
+        cost: "$10"
+      },
+      {
+        name: "Lemon Verbena",
+        image: "https://images.unsplash.com/photo-1590483736622-39da8caf35fb?q=80&w=1074&auto=format&fit=crop",
+        description: "Citrusy scent, ideal for teas and natural fragrance.",
+        cost: "$22"
+      },
+      {
+        name: "Sweet Basil",
+        image: "https://images.unsplash.com/photo-1563294318-62db52973797?q=80&w=1074&auto=format&fit=crop",
+        description: "Rich herbal scent, popular in Mediterranean cooking.",
+        cost: "$12"
+      }
+    ]
   },
   {
-    id: 3,
-    name: 'Peace Lily',
-    category: 'Indoor Plants',
-    price: 18,
-    image: 'https://images.unsplash.com/photo-1593696140826-c58b021acf8b?w=500&auto=format&fit=crop&q=80',
-    description: 'Beautiful white blooms and dark green leaves that actively filter toxins.'
-  },
-  {
-    id: 4,
-    name: 'Fiddle Leaf Fig',
-    category: 'Indoor Plants',
-    price: 35,
-    image: 'https://images.unsplash.com/photo-1597055181300-e3633a207518?w=500&auto=format&fit=crop&q=80',
-    description: 'Highly sought-after tree with large, structural violin-shaped leaves.'
-  },
-  {
-    id: 5,
-    name: 'Pothos',
-    category: 'Indoor Plants',
-    price: 12,
-    image: 'https://images.unsplash.com/photo-1632207691143-643c2a9a93c2?w=500&auto=format&fit=crop&q=80',
-    description: 'Trailing plant with heart-shaped leaves, very easy to care for.'
-  },
-  {
-    id: 6,
-    name: 'Spider Plant',
-    category: 'Indoor Plants',
-    price: 14,
-    image: 'https://images.unsplash.com/photo-1572590280143-4919559e38f2?w=500&auto=format&fit=crop&q=80',
-    description: 'Produces baby plantlets on arching stems, great for hanging pots.'
-  },
-
-  // Flowering Plants
-  {
-    id: 7,
-    name: 'Moth Orchid',
-    category: 'Flowering Plants',
-    price: 40,
-    image: 'https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?w=500&auto=format&fit=crop&q=80',
-    description: 'Elegant, colorful blooms that symbolize love, beauty, and luxury.'
-  },
-  {
-    id: 8,
-    name: 'Desert Rose',
-    category: 'Flowering Plants',
-    price: 28,
-    image: 'https://images.unsplash.com/photo-1560717789-0ac7c58ac90a?w=500&auto=format&fit=crop&q=80',
-    description: 'Classic blooming shrub with fragrant flowers, brings romantic charm.'
-  },
-  {
-    id: 9,
-    name: 'Red Hibiscus',
-    category: 'Flowering Plants',
-    price: 22,
-    image: 'https://images.unsplash.com/photo-1550950158-d0d960dff51b?w=500&auto=format&fit=crop&q=80',
-    description: 'Large, showy tropical blossoms that attract beneficial pollinators.'
-  },
-  {
-    id: 10,
-    name: 'Star Jasmine',
-    category: 'Flowering Plants',
-    price: 20,
-    image: 'https://images.unsplash.com/photo-1627997970791-c03565fcf20b?w=500&auto=format&fit=crop&q=80',
-    description: 'Exotic climber known for its intensely sweet, intoxicating aroma.'
-  },
-  {
-    id: 11,
-    name: 'Bougainvillea',
-    category: 'Flowering Plants',
-    price: 26,
-    image: 'https://images.unsplash.com/photo-1524230572899-a752b3835840?w=500&auto=format&fit=crop&q=80',
-    description: 'Vibrant paper-like bracts that produce spectacular cascades of color.'
-  },
-  {
-    id: 12,
-    name: 'Gardenia Grandiflora',
-    category: 'Flowering Plants',
-    price: 30,
-    image: 'https://images.unsplash.com/photo-1554907914-1b32d1691a32?w=500&auto=format&fit=crop&q=80',
-    description: 'Stunning creamy white flowers with an incredibly rich, sweet scent.'
-  },
-
-  // Succulents
-  {
-    id: 13,
-    name: 'Aloe Vera',
-    category: 'Succulents',
-    price: 10,
-    image: 'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=500&auto=format&fit=crop&q=80',
-    description: 'Medicinal gel-filled leaves, handy for burns, loves direct sunlight.'
-  },
-  {
-    id: 14,
-    name: 'Echeveria Rosette',
-    category: 'Succulents',
-    price: 8,
-    image: 'https://images.unsplash.com/photo-1520302630591-fd1c66ed11a3?w=500&auto=format&fit=crop&q=80',
-    description: 'Rose-like rosettes of thick leaves, comes in stunning pastel shades.'
-  },
-  {
-    id: 15,
-    name: 'Jade Plant',
-    category: 'Succulents',
-    price: 14,
-    image: 'https://images.unsplash.com/photo-1598880940375-d756e87f87ec?w=500&auto=format&fit=crop&q=80',
-    description: 'Symbol of wealth and prosperity, resembles a miniature woody tree.'
-  },
-  {
-    id: 16,
-    name: 'Zebra Plant',
-    category: 'Succulents',
-    price: 12,
-    image: 'https://images.unsplash.com/photo-1536882240095-0379873feb4e?w=500&auto=format&fit=crop&q=80',
-    description: 'Striking horizontal white stripes, compact size ideal for desks.'
-  },
-  {
-    id: 17,
-    name: 'String of Pearls',
-    category: 'Succulents',
-    price: 16,
-    image: 'https://images.unsplash.com/photo-1618220179428-22790b461013?w=500&auto=format&fit=crop&q=80',
-    description: 'Cascading vines of bead-like leaves, makes a gorgeous hanging display.'
-  },
-  {
-    id: 18,
-    name: 'Prickly Pear Cactus',
-    category: 'Succulents',
-    price: 15,
-    image: 'https://images.unsplash.com/photo-1508789453663-424b13bd35b9?w=500&auto=format&fit=crop&q=80',
-    description: 'Iconic flat-padded cactus that produces edible magenta fruits.'
+    category: "Succulents and Cacti",
+    plants: [
+      {
+        name: "Echeveria",
+        image: "https://images.unsplash.com/photo-1520302630591-fd1c66ed11a3?q=80&w=1074&auto=format&fit=crop",
+        description: "Beautiful rosette-shaped succulent, easy to propagate.",
+        cost: "$8"
+      },
+      {
+        name: "Jade Plant",
+        image: "https://images.unsplash.com/photo-1598880940375-d756e87f87ec?q=80&w=1074&auto=format&fit=crop",
+        description: "Symbolizes prosperity, thick fleshy leaves.",
+        cost: "$14"
+      },
+      {
+        name: "Zebra Plant",
+        image: "https://images.unsplash.com/photo-1536882240095-0379873feb4e?q=80&w=1074&auto=format&fit=crop",
+        description: "Striking horizontal white stripes, compact size.",
+        cost: "$12"
+      },
+      {
+        name: "Christmas Cactus",
+        image: "https://images.unsplash.com/photo-1599599810769-bcde5a160d32?q=80&w=1074&auto=format&fit=crop",
+        description: "Blooms in winter, features unique flat stem segments.",
+        cost: "$16"
+      },
+      {
+        name: "Burro's Tail",
+        image: "https://images.unsplash.com/photo-1590005354167-6da97870c913?q=80&w=1074&auto=format&fit=crop",
+        description: "Trailing stems with plump blue-green leaves.",
+        cost: "$18"
+      },
+      {
+        name: "Prickly Pear",
+        image: "https://images.unsplash.com/photo-1508789453663-424b13bd35b9?q=80&w=1074&auto=format&fit=crop",
+        description: "Flat green pads with decorative needles, edible fruit.",
+        cost: "$15"
+      }
+    ]
   }
 ];
 
-const ProductList = () => {
+function ProductList({ toLanding }) {
+  const [showCart, setShowCart] = useState(false);
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
 
   const handleAddToCart = (plant) => {
-    dispatch(addItem(plant));
+    dispatch(addItem({
+      name: plant.name,
+      price: parseFloat(plant.cost.replace('$', '')),
+      image: plant.image
+    }));
   };
 
-  const isPlantInCart = (plantId) => {
-    return cartItems.some((item) => item.id === plantId);
+  const alreadyInCart = (itemName) => {
+    return cartItems.some((item) => item.name === itemName);
   };
 
-  // Group plants by category
-  const categories = [...new Set(plantsData.map((plant) => plant.category))];
+  const totalItems = () => {
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  const handleCartClick = (e) => {
+    e.preventDefault();
+    setShowCart(true);
+  };
+
+  const handlePlantsClick = (e) => {
+    e.preventDefault();
+    setShowCart(false);
+  };
+
+  const handleHomeClick = (e) => {
+    e.preventDefault();
+    toLanding();
+  };
 
   return (
-    <div className="product-list-container">
-      <div className="product-list-hero">
-        <h1>Discover Your Perfect Green Companion</h1>
-        <p>Explore our carefully curated collection of healthy, vibrant houseplants</p>
-      </div>
+    <div className="product-list-page">
+      {/* Dynamic Header / Navbar */}
+      <nav className="navbar">
+        <div className="navbar-container">
+          <a href="#" onClick={handleHomeClick} className="navbar-brand">
+            <Leaf className="brand-logo-icon" />
+            <div className="brand-text-container">
+              <span className="brand-title">Paradise Nursery</span>
+              <span className="brand-subtitle">Plants for your space</span>
+            </div>
+          </a>
 
-      {categories.map((category) => (
-        <section key={category} className="category-section">
-          <h2 className="category-title">
-            <span className="category-icon">🌱</span> {category}
-          </h2>
-          
-          <div className="plants-grid">
-            {plantsData
-              .filter((plant) => plant.category === category)
-              .map((plant) => {
-                const added = isPlantInCart(plant.id);
-                return (
-                  <div key={plant.id} className="plant-card animate-fade-in">
-                    <div className="plant-card-image-wrapper">
-                      <img src={plant.image} alt={plant.name} className="plant-card-image" />
-                      <span className="plant-card-category-badge">{plant.category}</span>
-                    </div>
-
-                    <div className="plant-card-details">
-                      <h3 className="plant-card-name">{plant.name}</h3>
-                      <div className="plant-card-price">${plant.price.toFixed(2)}</div>
-                      <p className="plant-card-description">{plant.description}</p>
-                      
-                      <button
-                        onClick={() => handleAddToCart(plant)}
-                        disabled={added}
-                        className={`add-to-cart-btn ${added ? 'added' : ''}`}
-                      >
-                        {added ? (
-                          <>
-                            <Check size={16} />
-                            <span>Added to Cart</span>
-                          </>
-                        ) : (
-                          <>
-                            <Plus size={16} />
-                            <span>Add to Cart</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+          <div className="navbar-links">
+            <a href="#" onClick={handleHomeClick} className="navbar-link">Home</a>
+            <a href="#" onClick={handlePlantsClick} className="navbar-link">Plants</a>
+            <a href="#" onClick={handleCartClick} className="navbar-link cart-link">
+              <div className="cart-icon-wrapper">
+                <ShoppingCart className="navbar-cart-icon" />
+                {totalItems() > 0 && (
+                  <span className="navbar-cart-badge animate-pop-in">{totalItems()}</span>
+                )}
+              </div>
+            </a>
           </div>
-        </section>
-      ))}
+        </div>
+      </nav>
+
+      {!showCart ? (
+        <div className="product-list-container">
+          <div className="product-list-hero">
+            <h1>Discover Your Perfect Green Companion</h1>
+            <p>Explore our carefully curated collection of healthy, vibrant houseplants</p>
+          </div>
+
+          {plantsArray.map((categoryObj) => (
+            <section key={categoryObj.category} className="category-section">
+              <h2 className="category-title">
+                <span className="category-icon">🌱</span> {categoryObj.category}
+              </h2>
+              
+              <div className="plants-grid">
+                {categoryObj.plants.map((plant) => {
+                  const added = alreadyInCart(plant.name);
+                  return (
+                    <div key={plant.name} className="plant-card animate-fade-in">
+                      <div className="plant-card-image-wrapper">
+                        <img src={plant.image} alt={plant.name} className="plant-card-image" />
+                        <span className="plant-card-category-badge">{categoryObj.category}</span>
+                      </div>
+
+                      <div className="plant-card-details">
+                        <h3 className="plant-card-name">{plant.name}</h3>
+                        <div className="plant-card-price">{plant.cost}</div>
+                        <p className="plant-card-description">{plant.description}</p>
+                        
+                        <button
+                          onClick={() => handleAddToCart(plant)}
+                          disabled={added}
+                          className={`add-to-cart-btn ${added ? 'added' : ''}`}
+                        >
+                          {added ? 'Added to Cart' : 'Add to Cart'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
+        </div>
+      ) : (
+        <CartItem onContinueShopping={() => setShowCart(false)} />
+      )}
     </div>
   );
-};
+}
 
 export default ProductList;
-export { plantsData };

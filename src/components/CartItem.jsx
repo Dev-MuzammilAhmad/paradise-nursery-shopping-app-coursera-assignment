@@ -1,27 +1,45 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag } from 'lucide-react';
-import { removeItem, increaseQuantity, decreaseQuantity } from '../features/cart/CartSlice';
+import { removeItem, updateQuantity } from '../features/cart/CartSlice';
+import { Trash2, Plus, Minus, ArrowLeft } from 'lucide-react';
 
-const CartItem = () => {
+const CartItem = ({ onContinueShopping }) => {
+  const cartItems = useSelector((state) => state.cart.items);
   const dispatch = useDispatch();
-  const { items: cartItems, totalAmount, totalQuantity } = useSelector((state) => state.cart);
 
-  const handleIncrease = (id) => {
-    dispatch(increaseQuantity(id));
+  // Function that calculates the total cart amount
+  const calculateTotalAmount = () => {
+    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
-  const handleDecrease = (id) => {
-    dispatch(decreaseQuantity(id));
+  // Function that calculates total cost per plant (price * quantity)
+  const calculateTotalCost = (item) => {
+    return item.price * item.quantity;
   };
 
-  const handleRemove = (id) => {
-    dispatch(removeItem(id));
+  const handleIncrement = (item) => {
+    dispatch(updateQuantity({ name: item.name, quantity: item.quantity + 1 }));
+  };
+
+  const handleDecrement = (item) => {
+    if (item.quantity > 1) {
+      dispatch(updateQuantity({ name: item.name, quantity: item.quantity - 1 }));
+    } else {
+      dispatch(removeItem(item.name));
+    }
+  };
+
+  const handleRemove = (item) => {
+    dispatch(removeItem(item.name));
   };
 
   const handleCheckout = () => {
     alert('Coming Soon! Thank you for shopping with Paradise Nursery.');
+  };
+
+  const handleContinueShopping = (e) => {
+    e.preventDefault();
+    onContinueShopping();
   };
 
   if (cartItems.length === 0) {
@@ -31,10 +49,9 @@ const CartItem = () => {
           <div className="empty-cart-icon">🛒</div>
           <h2>Your Cart is Empty</h2>
           <p>It looks like you haven't added any plants to your cart yet. Let's change that and bring some greenery to your home!</p>
-          <Link to="/plants" className="continue-shopping-btn">
-            <ShoppingBag size={18} />
+          <a href="#" onClick={handleContinueShopping} className="continue-shopping-btn">
             <span>Browse Plants</span>
-          </Link>
+          </a>
         </div>
       </div>
     );
@@ -48,7 +65,7 @@ const CartItem = () => {
         {/* Cart Items List */}
         <div className="cart-items-list">
           {cartItems.map((item) => (
-            <div key={item.id} className="cart-item-card">
+            <div key={item.name} className="cart-item-card">
               <div className="cart-item-image-wrapper">
                 <img src={item.image} alt={item.name} className="cart-item-image" />
               </div>
@@ -57,7 +74,7 @@ const CartItem = () => {
                 <div className="cart-item-header">
                   <h3 className="cart-item-name">{item.name}</h3>
                   <button 
-                    onClick={() => handleRemove(item.id)} 
+                    onClick={() => handleRemove(item)} 
                     className="cart-item-delete-btn"
                     title="Remove item"
                   >
@@ -72,7 +89,7 @@ const CartItem = () => {
                 <div className="cart-item-controls">
                   <div className="quantity-controller">
                     <button 
-                      onClick={() => handleDecrease(item.id)} 
+                      onClick={() => handleDecrement(item)} 
                       className="quantity-btn"
                       title="Decrease quantity"
                     >
@@ -80,7 +97,7 @@ const CartItem = () => {
                     </button>
                     <span className="quantity-display">{item.quantity}</span>
                     <button 
-                      onClick={() => handleIncrease(item.id)} 
+                      onClick={() => handleIncrement(item)} 
                       className="quantity-btn"
                       title="Increase quantity"
                     >
@@ -89,7 +106,7 @@ const CartItem = () => {
                   </div>
 
                   <div className="item-subtotal">
-                    Subtotal: <strong>${(item.price * item.quantity).toFixed(2)}</strong>
+                    Subtotal: <strong>${calculateTotalCost(item).toFixed(2)}</strong>
                   </div>
                 </div>
               </div>
@@ -103,22 +120,22 @@ const CartItem = () => {
           
           <div className="summary-row">
             <span>Total Plants</span>
-            <span>{totalQuantity}</span>
+            <span>{cartItems.reduce((total, item) => total + item.quantity, 0)}</span>
           </div>
 
           <div className="summary-row total-row">
             <span>Grand Total</span>
-            <span className="grand-total-amount">${totalAmount.toFixed(2)}</span>
+            <span className="grand-total-amount">${calculateTotalAmount().toFixed(2)}</span>
           </div>
 
           <button onClick={handleCheckout} className="checkout-btn">
             Proceed to Checkout
           </button>
 
-          <Link to="/plants" className="continue-shopping-link-btn">
+          <a href="#" onClick={handleContinueShopping} className="continue-shopping-link-btn">
             <ArrowLeft size={16} />
             <span>Continue Shopping</span>
-          </Link>
+          </a>
         </div>
       </div>
     </div>
