@@ -2,18 +2,18 @@
 
 /* Design Tokens & Variables */
 :root {
-  --primary-green: #2e7d32;
-  --primary-green-hover: #1b5e20;
+  --primary-green: #40b345;
+  --primary-green-hover: #1f4921;
   --accent-mint: #e8f5e9;
   --bg-beige: #faf9f6;
   --text-dark: #2d3748;
-  --text-muted: #718096;
+  --text-muted: #5c7498;
   --text-light: #ffffff;
   --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   --hover-shadow: 0 20px 40px rgba(46, 125, 50, 0.15);
   --glass-bg: rgba(255, 255, 255, 0.85);
   --glass-border: rgba(255, 255, 255, 0.4);
-  --red-accent: #e53e3e;
+  --red-accent: #d33d3d;
   --red-accent-hover: #c53030;
 }
 
